@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Lab4 : MonoBehaviour
 {
-
+    // inputs
     public string characterName;
     public int characterLevel;
     public int conScore;
@@ -13,10 +13,11 @@ public class Lab4 : MonoBehaviour
     
     // true if averaged, false if rolled
     public bool diceAveraged;
-    private string rollType;
+    private string rollType; // to store whether the HP was rolled or averaged
     public string characterClass;
 
     private int totalHP;
+    // dictionaries to hold constiution, races, and classes data
     private Dictionary<int, int> conScores = new Dictionary<int, int>();
     private Dictionary<string, int> characterRaces = new Dictionary<string, int>();
     private Dictionary<string, int> characterClasses = new Dictionary<string, int>();
@@ -32,70 +33,80 @@ public class Lab4 : MonoBehaviour
 
     public int calculateHP()
     {
-        int hitPoints;
-        
+        int hitPoints; // total HP
+        int roll = 0; // single roll value
+        int totalRoll = 0; // add all rolls together
+
         if (diceAveraged)
         {
             rollType = "averaged";
-            int averagedRoll; // This is turned into an int so that it can be rounded up.
             switch (characterClasses[characterClass])
             {
                 case 6:
-                    averagedRoll = 4;
+                    roll = 4;
                     break;
                 case 8:
-                    averagedRoll = 5;
+                    roll = 5;
                     break;
                 case 10:
-                    averagedRoll = 6;
+                    roll = 6;
                     break;
                 case 12:
-                    averagedRoll = 7;
+                    roll = 7;
                     break;
                 default: // This shouldn't be possible, but it has been added in for the sake of debugging.
-                    averagedRoll = 0; 
+                    roll = 0;
                     break;
             }
-
-            if (toughFeat && stoutFeat)
+            totalRoll = roll * characterLevel;
+        } else
+        {
+            rollType = "rolled";
+            for (int i = 0; i < characterLevel; i++)
             {
-                hitPoints = (characterLevel * averagedRoll) + (characterLevel * conScores[conScore]) +
-                            (characterLevel * characterRaces[characterRace]) + (characterLevel * 3);
+                // randomize each roll and add it to the total roll count
+                roll = Random.Range(1, characterClasses[characterClass] + 1);
+                totalRoll += roll;
+                Debug.Log("Roll " + (i + 1) + ": " + roll);
             }
-            else if (toughFeat)
-            {
-                hitPoints = (characterLevel * averagedRoll) + (characterLevel * conScores[conScore]) + 
-                            (characterLevel * characterRaces[characterRace]) + (characterLevel * 2);
-            }
-            else if (stoutFeat)
-            {
-                hitPoints = (characterLevel * averagedRoll) + (characterLevel * conScores[conScore]) + 
-                            (characterLevel * characterRaces[characterRace]) + (characterLevel * 1);
-            }
-            else
-            {
-                hitPoints = (characterLevel * averagedRoll) + (characterLevel * conScores[conScore]) + 
-                            (characterLevel * characterRaces[characterRace]);
-            }
+        }
+        // Calculate total HP based in accordance to feat selection
+        if (toughFeat && stoutFeat)
+        {
+            hitPoints = (totalRoll) + (characterLevel * conScores[conScore]) +
+                        (characterLevel * characterRaces[characterRace]) + (characterLevel * 3);
+        }
+        else if (toughFeat)
+        {
+            hitPoints = (totalRoll) + (characterLevel * conScores[conScore]) +
+                        (characterLevel * characterRaces[characterRace]) + (characterLevel * 2);
+        }
+        else if (stoutFeat)
+        {
+            hitPoints = (totalRoll) + (characterLevel * conScores[conScore]) +
+                        (characterLevel * characterRaces[characterRace]) + (characterLevel * 1);
         }
         else
         {
-            rollType = "rolled";
-            int randomRoll = Random.Range(1, characterClasses[characterClass] + 1);
-            hitPoints = (characterLevel * randomRoll) + (characterLevel * conScores[conScore]) + (characterLevel * characterRaces[characterRace]);
+            hitPoints = (totalRoll) + (characterLevel * conScores[conScore]) +
+                        (characterLevel * characterRaces[characterRace]);
         }
+          
         
         return hitPoints;
     }
+    // Check to make sure that all of the values are within the correct parameters. If not, it sets them to a default value and output a debug log
     public void checkValues()
     {
         if (characterLevel < 1 || characterLevel > 20)
         {
-            Debug.Log("Character level must be between 1 and 20.");
+            Debug.Log("Character level must be between 1 and 20. Setting to 1");
+            characterLevel = 1;
         }
         if (conScore < 1 || conScore > 30)
         {
-            Debug.Log("Constitution score must be between 1 and 30.");
+            Debug.Log("Constitution score must be between 1 and 30. Setting to 1.");
+            conScore = 1;
         }
         if (characterRaces.ContainsKey(characterRace) == false)
         {
@@ -147,6 +158,7 @@ public class Lab4 : MonoBehaviour
         characterClasses.Add("Warlock", 8);
     }
 
+    // Output the character information and total HP
     public void output()
     {
         if (toughFeat && stoutFeat)
