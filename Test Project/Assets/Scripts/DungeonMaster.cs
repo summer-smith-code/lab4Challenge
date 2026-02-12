@@ -9,14 +9,6 @@ public class DungeonMaster : MonoBehaviour
     public Dictionary<string, int> characterRaces = new Dictionary<string, int>();
     public Dictionary<string, int> characterClasses = new Dictionary<string, int>();
 
-
-    // Start is called before the first frame update
-    void Awake()
-    {
-        // Calls setUp() to define all dictionaries.
-        setUp();
-    }
-
     // Defines all values for the character info dictionaries.
     public void setUp()
     {
