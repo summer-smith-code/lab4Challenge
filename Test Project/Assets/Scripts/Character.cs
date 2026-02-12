@@ -34,7 +34,6 @@ public class Character : DungeonMaster
     {
         Character character = new Character("Test Character", 1, 10, "Dwarf", "Fighter", true, true, true);
         Instantiate(character);
-        character.setUp();
         character.checkValues(characterLevel, conScore, characterRace, characterClass);
         character.totalHP = calculateHP();
         output(character);
